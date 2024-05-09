@@ -1,0 +1,39 @@
+name: Compile Scikit-learn
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build Scikit-learn
+    runs-on: ubuntu-latest  # GitHub Actions currently doesn't support FreeBSD, so using Ubuntu as an alternative.
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-dev python3-pip gcc g++
+
+    - name: Clone Scikit-learn repository
+      run: git clone https://github.com/scikit-learn/scikit-learn.git
+
+    - name: Compile Scikit-learn
+      run: |
+        cd scikit-learn
+        pip wheel .
+      
+    - name: Publish compiled package
+      uses: actions/upload-artifact@v2
+      with:
+        name: scikit-learn
+        path: scikit-learn/*.whl
