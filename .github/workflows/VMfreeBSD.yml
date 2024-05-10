@@ -1,0 +1,29 @@
+name: Build Alist
+
+on: workflow_dispatch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Build Alist
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build Alist
+      uses: vmactions/freebsd-vm@v1
+      with:
+        usesh: true
+        release: 13.2
+        prepare: |
+          pkg install -y node wget curl git go121 gcc bash gawk gsed
+          ln -s /usr/local/bin/go121 /usr/local/bin/go
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-dev python3-pip gcc g++
+          git clone https://github.com/scikit-learn/scikit-learn.git
+          cd scikit-learn
+          pip wheel .
+    - name: Publish compiled package
+      uses: actions/upload-artifact@v2
+      with:
+        name: scikit-learn
+        path: scikit-learn/*.whl
