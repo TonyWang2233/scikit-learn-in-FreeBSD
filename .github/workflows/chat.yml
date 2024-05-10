@@ -1,0 +1,29 @@
+name: Build Alist
+
+on: workflow_dispatch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Build Scikit-Learn
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup FreeBSD VM
+      uses: vmactions/freebsd-vm@v1
+      with:
+        usesh: true
+        release: 13.2
+        prepare: |
+          pkg install -y node wget curl git go121 gcc bash gawk gsed
+          ln -s /usr/local/bin/go121 /usr/local/bin/go
+          pkg install -y python310 py310-pip
+    - name: Build Scikit-Learn
+      run: |
+        git clone https://github.com/scikit-learn/scikit-learn.git
+        cd scikit-learn
+        pip3.10 wheel .
+    - name: Publish compiled package
+      uses: actions/upload-artifact@v2
+      with:
+        name: scikit-learn
+        path: scikit-learn/*.whl
